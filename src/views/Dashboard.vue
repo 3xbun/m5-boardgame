@@ -39,7 +39,7 @@ import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
 
 const DB = ref([])
-const sortBy = ref('playtime')
+const sortBy = ref('alphabetically')
 const filterDB = computed(() => {
   if (sortBy.value === 'alphabetically') {
     return DB.value.sort((a, b) => {
