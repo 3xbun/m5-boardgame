@@ -162,6 +162,7 @@ img {
 
 .control {
   display: flex;
+  gap: 1em;
   margin-top: 1em;
   justify-content: space-between;
 }
