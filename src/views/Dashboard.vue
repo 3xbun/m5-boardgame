@@ -10,8 +10,16 @@
     <div class="stats">
       <p>เกมที่มี: {{ DB.length }}</p>
     </div>
+
+    <div class="sort">
+      <p>เรียงตาม: </p>
+      <p class="btn" @click="sortBy = 'alphabetically'">ตัวอักษร</p>
+      <p class="btn" @click="sortBy = 'playtime'">เวลาเล่น</p>
+      <p class="btn" @click="sortBy = 'players'">จำนวนผู้เล่น</p>
+    </div>
+
     <ul class="cards">
-      <li v-for="item in DB" class="card">
+      <li v-for="item in filterDB" class="card">
         <img :src="item.image" alt="">
         <div class="information">
           <p><strong>{{ item.name }}</strong></p>
@@ -27,10 +35,45 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
 
 const DB = ref([])
+const sortBy = ref('playtime')
+const filterDB = computed(() => {
+  if (sortBy.value === 'alphabetically') {
+    return DB.value.sort((a, b) => {
+      if (a.name < b.name) {
+        return -1;
+      } else if (a.name > b.name) {
+        return 1;
+      }
+
+      return 0
+    });
+  } else if (sortBy.value === 'playtime') {
+    return DB.value.sort((a, b) => {
+      if (a.playtime < b.playtime) {
+        return -1;
+      } else if (a.playtime > b.playtime) {
+        return 1;
+      }
+
+      return 0
+    });
+  } else if (sortBy.value === 'players') {
+    return DB.value.sort((a, b) => {
+      if (a.player.split('-')[0] < b.player.split('-')[0]) {
+        return -1;
+      } else if (a.player.split('-')[0] > b.player.split('-')[0]) {
+        return 1;
+      }
+
+      return 0
+    });
+  }
+
+})
 
 onMounted(() => {
   if (localStorage.getItem("BoardgameDB")) {
@@ -95,5 +138,20 @@ li {
   width: 45%;
   gap: 1em;
   justify-content: center;
+}
+
+.sort {
+  display: flex;
+  gap: 1em;
+  padding: .5em 1em 1em;
+  align-items: center;
+}
+
+.sort .btn {
+  cursor: pointer;
+  background-color: #3f3a60;
+  padding: .5em;
+  border-radius: .5em;
+  color: white;
 }
 </style>
