@@ -39,6 +39,7 @@
         <span v-if="bg.yearpublished">
           ({{ bg.yearpublished }})
         </span>
+        <i v-if="isInCollection" class="fa-duotone fa-solid fa-circle-check success"></i>
       </h3>
       <div class="stats">
         <p><i class="fa-duotone fa-solid fa-users"></i> : {{ bg.minplayers === bg.maxplayers ? bg.minplayers :
@@ -54,13 +55,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { xml2js } from 'xml-js';
 
 const searchText = ref('');
 const owner = ref('')
-
+const DB = ref([])
 const result = ref('')
 const bg = ref('')
 const bgName = ref('')
@@ -100,6 +101,25 @@ const addToCollection = () => {
     console.log(res.data)
   })
 }
+
+const isInCollection = computed(() => {
+  if (DB.value.filter(b => b.ID == bg.value.objectid).length > 0) {
+    return true
+  }
+
+  return false
+})
+
+onMounted(() => {
+  if (localStorage.getItem("BoardgameDB")) {
+    DB.value = JSON.parse(localStorage.getItem("BoardgameDB"))
+  }
+
+  axios.get('https://n8n.3xbun.com/webhook/bgg-api').then(res => {
+    DB.value = res.data
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data))
+  })
+})
 </script>
 
 <style scoped>
@@ -183,5 +203,9 @@ img {
 .stats {
   display: flex;
   gap: 1em;
+}
+
+.success {
+  color: #41a04e;
 }
 </style>
