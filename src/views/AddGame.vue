@@ -13,10 +13,9 @@
     </div>
 
     <ul v-if="result">
-      <li v-for="item in result" @click="getBG(item._attributes.id); bgName = item.name._attributes.value">
-        <span>
-          >
-        </span>
+      <li class="searchItem" v-for="item in result"
+        @click="getBG(item._attributes.id); bgName = item.name._attributes.value">
+        <i class="fa-duotone fa-solid fa-chevron-right"></i>
         <span v-if="item.name">
           {{ item.name._attributes.value }}
         </span>
@@ -162,14 +161,19 @@ ul {
   overflow: scroll;
   overflow-x: hidden;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
-  padding: .5em .5em 1em;
+  padding: .5em .5em 0em;
   border-radius: .5em;
 }
 
 li {
-  list-style: none;
   cursor: pointer;
   font-weight: bold;
+  text-align: left;
+  margin-bottom: .5em;
+}
+
+li i {
+  margin-right: .5em;
 }
 
 .boardgame {
