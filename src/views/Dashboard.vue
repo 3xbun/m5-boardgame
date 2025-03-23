@@ -23,6 +23,7 @@
     <ul class="cards">
       <li v-for="item in filterDB" class="card"
         @click="showModal = true; bgID = item.ID; reservedName = item.reservedName; reservedDate = item.reservedDate">
+        <p class="reserved" v-if="item.reservedName">จองแล้ว</p>
         <img :src="item.image" alt="">
         <div class="information">
           <p><strong>{{ item.name }}</strong></p>
@@ -137,6 +138,8 @@ img {
 }
 
 .card {
+  overflow: hidden;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -167,5 +170,17 @@ li {
   padding: .5em;
   border-radius: .5em;
   color: white;
+}
+
+.reserved {
+  width: 7em;
+  position: absolute;
+  right: -2em;
+  top: 1em;
+  transform: rotate(45deg);
+  padding: 0 .5em;
+  background-color: #6babfa;
+  color: #fff;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 </style>

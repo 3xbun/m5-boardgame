@@ -7,6 +7,13 @@
       <h1>{{ bg.name }}</h1>
       <p class="year">({{ bg.yearpublished }})</p>
     </div>
+
+    <div class="reservation" v-if="props.reservedDate && props.reservedName">
+      <p>{{ props.reservedName }} จองไว้สำหรับวันที่ {{ dayjs('01/01/1900').add(props.reservedDate,
+        'days').locale('th').format('DD MMMM YYYY')
+      }}</p>
+    </div>
+
     <div class="summary">
       <div class="image">
         <img :src="bg.image" />
@@ -59,11 +66,13 @@
 
 <script setup>
 import axios from 'axios';
+import dayjs from 'dayjs';
+import 'dayjs/locale/th';
 import { inject, onMounted, ref } from 'vue';
 
 const bg = ref({})
 const showModal = inject('showModal')
-const props = defineProps(['objectid'])
+const props = defineProps(['objectid', 'reservedDate', 'reservedName'])
 
 const close = () => {
   showModal.value = false
@@ -207,5 +216,14 @@ i {
   padding: .5em 1em;
   border-radius: .5em;
   cursor: pointer;
+}
+
+.reservation {
+  background-color: #6babfa;
+  margin: 1em auto;
+  padding: .5em 1em;
+  border-radius: .5em;
+  color: #fff;
+  width: fit-content;
 }
 </style>
