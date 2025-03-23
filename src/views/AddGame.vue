@@ -111,14 +111,14 @@ const addToCollection = () => {
     owner: owner.value
   }
 
-  axios.post('http://cdb.3xbun.com/m5-boardgame', payload).then(res => {
+  axios.post('https://n8n.3xbun.com/webhook/bgg-api/add', payload).then(res => {
+    console.log(res.data);
     updateDB();
   })
 }
 
 const isInCollection = computed(() => {
-
-  if (DB.value.filter(b => b.doc.ID == bg.value.objectid).length > 0) {
+  if (DB.value.filter(b => b.ID == bg.value.objectid).length > 0) {
     return true
   }
 
@@ -126,9 +126,9 @@ const isInCollection = computed(() => {
 })
 
 const updateDB = () => {
-  axios.get('https://cdb.3xbun.com/m5-boardgame/_all_docs?include_docs=true').then(res => {
-    DB.value = res.data.rows
-    localStorage.setItem("BoardgameDB", JSON.stringify(res.data.rows))
+  axios.get('https://n8n.3xbun.com/webhook/bgg-api').then(res => {
+    DB.value = res.data
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data))
   })
 }
 
@@ -137,9 +137,9 @@ onMounted(() => {
     DB.value = JSON.parse(localStorage.getItem("BoardgameDB"))
   }
 
-  axios.get('https://cdb.3xbun.com/m5-boardgame/_all_docs?include_docs=true').then(res => {
-    DB.value = res.data.rows
-    localStorage.setItem("BoardgameDB", JSON.stringify(res.data.rows))
+  axios.get('https://n8n.3xbun.com/webhook/bgg-api').then(res => {
+    DB.value = res.data
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data))
   })
 })
 </script>

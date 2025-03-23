@@ -7,7 +7,7 @@
       </router-link>
     </header>
 
-    <BoardGame :objectid="bgID" v-if="showModal" />
+    <BoardGame :objectid="bgID" :reservedDate="reservedDate" :reservedName="reservedName" v-if="showModal" />
 
     <div class="stats">
       <p>เกมที่มี: {{ DB.length }}</p>
@@ -21,14 +21,15 @@
     </div>
 
     <ul class="cards">
-      <li v-for="item in filterDB" class="card" @click="showModal = true; bgID = item.doc.ID">
-        <img :src="item.doc.image" alt="">
+      <li v-for="item in filterDB" class="card"
+        @click="showModal = true; bgID = item.ID; reservedName = item.reservedName; reservedDate = item.reservedDate">
+        <img :src="item.image" alt="">
         <div class="information">
-          <p><strong>{{ item.doc.name }}</strong></p>
-          <p><i class="fa-duotone fa-solid fa-users"></i> : {{ item.doc.player }} คน</p>
-          <p><i class="fa-duotone fa-regular fa-timer"></i> : {{ item.doc.playtime }} นาที</p>
-          <p v-if="item.doc.owner">
-            By: {{ item.doc.owner }}
+          <p><strong>{{ item.name }}</strong></p>
+          <p><i class="fa-duotone fa-solid fa-users"></i> : {{ item.player }} คน</p>
+          <p><i class="fa-duotone fa-regular fa-timer"></i> : {{ item.playtime }} นาที</p>
+          <p v-if="item.owner">
+            By: {{ item.owner }}
           </p>
         </div>
       </li>
@@ -43,6 +44,8 @@ import axios from 'axios';
 import BoardGame from '../components/BoardGame.vue';
 
 const bgID = ref('')
+const reservedName = ref('')
+const reservedDate = ref('')
 const showModal = ref(false)
 provide('showModal', showModal)
 
@@ -87,9 +90,9 @@ onMounted(() => {
     DB.value = JSON.parse(localStorage.getItem("BoardgameDB"))
   }
 
-  axios.get('https://cdb.3xbun.com/m5-boardgame/_all_docs?include_docs=true').then(res => {
-    DB.value = res.data.rows
-    localStorage.setItem("BoardgameDB", JSON.stringify(res.data.rows))
+  axios.get('https://n8n.3xbun.com/webhook/bgg-api').then(res => {
+    DB.value = res.data
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data))
   })
 })
 </script>
