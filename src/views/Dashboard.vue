@@ -7,6 +7,8 @@
       </router-link>
     </header>
 
+    <BoardGame :objectid="bgID" v-if="showModal" />
+
     <div class="stats">
       <p>เกมที่มี: {{ DB.length }}</p>
     </div>
@@ -19,14 +21,14 @@
     </div>
 
     <ul class="cards">
-      <li v-for="item in filterDB" class="card">
-        <img :src="item.image" alt="">
+      <li v-for="item in filterDB" class="card" @click="showModal = true; bgID = item.doc.ID">
+        <img :src="item.doc.image" alt="">
         <div class="information">
-          <p><strong>{{ item.name }}</strong></p>
-          <p><i class="fa-duotone fa-solid fa-users"></i> : {{ item.player }} คน</p>
-          <p><i class="fa-duotone fa-regular fa-timer"></i> : {{ item.playtime }} นาที</p>
-          <p v-if="item.owner">
-            By: {{ item.owner }}
+          <p><strong>{{ item.doc.name }}</strong></p>
+          <p><i class="fa-duotone fa-solid fa-users"></i> : {{ item.doc.player }} คน</p>
+          <p><i class="fa-duotone fa-regular fa-timer"></i> : {{ item.doc.playtime }} นาที</p>
+          <p v-if="item.doc.owner">
+            By: {{ item.doc.owner }}
           </p>
         </div>
       </li>
@@ -35,8 +37,14 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, provide, ref } from 'vue';
 import axios from 'axios';
+
+import BoardGame from '../components/BoardGame.vue';
+
+const bgID = ref('')
+const showModal = ref(false)
+provide('showModal', showModal)
 
 const DB = ref([])
 const sortBy = ref('alphabetically')
@@ -72,7 +80,6 @@ const filterDB = computed(() => {
       return 0
     });
   }
-
 })
 
 onMounted(() => {
@@ -80,9 +87,9 @@ onMounted(() => {
     DB.value = JSON.parse(localStorage.getItem("BoardgameDB"))
   }
 
-  axios.get('https://n8n.3xbun.com/webhook/bgg-api').then(res => {
-    DB.value = res.data
-    localStorage.setItem("BoardgameDB", JSON.stringify(res.data))
+  axios.get('https://cdb.3xbun.com/m5-boardgame/_all_docs?include_docs=true').then(res => {
+    DB.value = res.data.rows
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data.rows))
   })
 })
 </script>
@@ -119,6 +126,7 @@ img {
 }
 
 .cards {
+  cursor: pointer;
   display: flex;
   gap: 1em;
   justify-content: center;

@@ -29,11 +29,8 @@
     <div class="boardgame" v-if="bg">
       <img :src="bg.image">
       <h3>
-        <span v-if="bg.name._">
-          {{ bg.name._ }}
-        </span>
-        <span v-else>
-          {{bg.name.filter(name => name.primary === 'true')[0]._}}
+        <span>
+          {{ bg.name }}
         </span>
         <span v-if="bg.yearpublished">
           ({{ bg.yearpublished }})
@@ -78,7 +75,25 @@ const search = () => {
 
 const getBG = (id) => {
   axios.get(`https://n8n.3xbun.com/webhook/d188e5a6-029a-4dd6-bd4c-e366a35dce6b/bgg-api/${id}`).then(res => {
-    bg.value = res.data.boardgames.boardgame
+    const data = res.data.boardgames.boardgame
+    const name = data.name
+    const thaiLang = /[ก-๙]/;
+
+    bg.value = data
+
+    if (name.length > 0) {
+      name.forEach(n => {
+        if (thaiLang.test(n._)) {
+          bg.value.name = n._
+        } else if (n.primary == 'true') {
+          bg.value.name = n._
+        } else {
+          bg.name = n._
+        }
+      });
+    } else {
+      bg.value.name = name._
+    }
   })
 }
 
@@ -96,27 +111,35 @@ const addToCollection = () => {
     owner: owner.value
   }
 
-  axios.post('https://n8n.3xbun.com/webhook/bgg-api/add', payload).then(res => {
-    console.log(res.data)
+  axios.post('http://cdb.3xbun.com/m5-boardgame', payload).then(res => {
+    updateDB();
   })
 }
 
 const isInCollection = computed(() => {
-  if (DB.value.filter(b => b.ID == bg.value.objectid).length > 0) {
+
+  if (DB.value.filter(b => b.doc.ID == bg.value.objectid).length > 0) {
     return true
   }
 
   return false
 })
 
+const updateDB = () => {
+  axios.get('https://cdb.3xbun.com/m5-boardgame/_all_docs?include_docs=true').then(res => {
+    DB.value = res.data.rows
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data.rows))
+  })
+}
+
 onMounted(() => {
   if (localStorage.getItem("BoardgameDB")) {
     DB.value = JSON.parse(localStorage.getItem("BoardgameDB"))
   }
 
-  axios.get('https://n8n.3xbun.com/webhook/bgg-api').then(res => {
-    DB.value = res.data
-    localStorage.setItem("BoardgameDB", JSON.stringify(res.data))
+  axios.get('https://cdb.3xbun.com/m5-boardgame/_all_docs?include_docs=true').then(res => {
+    DB.value = res.data.rows
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data.rows))
   })
 })
 </script>
