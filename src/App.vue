@@ -1,15 +1,13 @@
 <template>
   <div>
     <div class="container">
-      บอร์ดเกม ม.5
+      Boardgames Collection
       <RouterView />
     </div>
   </div>
 </template>
 
-<script setup>
-
-</script>
+<script setup></script>
 
 <style scoped>
 .container {
