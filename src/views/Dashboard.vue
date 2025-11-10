@@ -26,7 +26,7 @@
         class="card"
         @click="
           showModal = true;
-          bgID = item.ID;
+          bgID = item.BGG_ID;
         "
       >
         <img :src="item.Image" alt="" />

@@ -1,109 +1,124 @@
 <template>
-  <div class="modal" v-if="showModal">
+  <div class="modal" v-if="showModal && ready">
     <div class="close" @click="close()">
       <i class="fa-duotone fa-solid fa-xmark-large"></i>
     </div>
-    <div class=" head">
-      <h1>{{ bg.name }}</h1>
-      <p class="year">({{ bg.yearpublished }})</p>
-    </div>
-
-    <div class="reservation" v-if="props.reservedDate && props.reservedName">
-      <p>{{ props.reservedName }} จองไว้สำหรับวันที่ {{ dayjs('01/01/1900').add(props.reservedDate,
-        'days').locale('th').format('DD MMMM YYYY')
-      }}</p>
+    <div class="head">
+      <h1>{{ bgData.name }}</h1>
+      <p class="year">({{ bgData.yearpublished.value }})</p>
     </div>
 
     <div class="summary">
       <div class="image">
-        <img :src="bg.image" />
+        <img :src="bgData.image" />
       </div>
       <div class="information">
         <div class="players">
           <i class="fa-duotone fa-solid fa-users"></i>
           <span>
-            {{ bg.minplayers === bg.maxplayers ? bg.minplayers :
-              `${bg.minplayers} – ${bg.maxplayers}` }} คน
+            {{
+              bgData.minplayers.value === bgData.maxplayers.value
+                ? bgData.minplayers.value
+                : `${bgData.minplayers.value} – ${bgData.maxplayers.value}`
+            }}
+            คน
           </span>
         </div>
 
         <div class="playtime">
           <i class="fa-duotone fa-regular fa-timer"></i>
           <span>
-            {{ bg.minplaytime === bg.maxplaytime ? bg.minplaytime :
-              `${bg.minplaytime} – ${bg.maxplaytime}` }} นาที
+            {{
+              bgData.minplaytime.value === bgData.maxplaytime.value
+                ? bgData.minplaytime.value
+                : `${bgData.minplaytime.value} – ${bgData.maxplaytime.value}`
+            }}
+            นาที
           </span>
         </div>
 
         <div class="age">
           <i class="fa-duotone fa-solid fa-child-reaching"></i>
-          <span>
-            {{ bg.age }}+ ปี
-          </span>
+          <span> {{ bgData.minage.value }}+ ปี </span>
         </div>
       </div>
     </div>
 
-    <a target="_blank" class="youtube" :href="'https://www.youtube.com/results?search_query=' + bg.name + ' วิธีเล่น'">
+    <a
+      target="_blank"
+      class="youtube"
+      :href="
+        'https://www.youtube.com/results?search_query=' +
+        bgData.name +
+        ' วิธีเล่น'
+      "
+    >
       <i class="fa-brands fa-youtube"></i>
-      <span>ดูวิธีเล่น {{ bg.name }}</span>
+      <span>ดูวิธีเล่น {{ bgData.name }}</span>
     </a>
 
     <div class="categories">
       <i class="fa-duotone fa-solid fa-tags"></i>
-      <span class="category" v-for="category in bg.boardgamecategory">{{ category._ }}</span>
+
+      <span class="category" v-for="link in bgData.link">
+        <span v-if="link.type == 'boardgamecategory'">{{ link.value }}</span>
+        <span v-if="link.type == 'boardgamemechanic'">{{ link.value }}</span>
+      </span>
     </div>
 
     <div class="desc">
       <h3>คำอธิบาย</h3>
-      <hr>
-      <br>
-      <p v-html="bg.description"></p>
+      <hr />
+      <br />
+      <p v-html="bgData.description"></p>
     </div>
-    <!-- <div class="delete" @click="delete (bg.objectid)">นำออกจากคอลเลคชั่น</div> -->
+    <!-- <div class="delete" @click="delete (bgData.objectid)">นำออกจากคอลเลคชั่น</div> -->
   </div>
 </template>
 
 <script setup>
-import axios from 'axios';
-import dayjs from 'dayjs';
-import 'dayjs/locale/th';
-import { inject, onMounted, ref } from 'vue';
+import axios from "axios";
+import { inject, onMounted, ref } from "vue";
 
-const bg = ref({})
-const showModal = inject('showModal')
-const props = defineProps(['objectid', 'reservedDate', 'reservedName'])
+const bgData = ref({});
+const showModal = inject("showModal");
+const props = defineProps(["objectid"]);
+const ready = ref(false);
 
 const close = () => {
-  showModal.value = false
-}
+  showModal.value = false;
+};
 
-const getBG = () => {
-  axios.get(`https://n8n.3xbun.com/webhook/d188e5a6-029a-4dd6-bd4c-e366a35dce6b/bgg-api/${props.objectid}`).then(res => {
-    const data = res.data.boardgames.boardgame
-    const name = data.name
-    const thaiLang = /[ก-๙]/;
+const getBG = (id) => {
+  axios
+    .post("https://n8n.3xbun.com/webhook/bgg-api/get-bg", { id: id })
+    .then((res) => {
+      const data = res.data[0].items.item;
+      const name = data.name;
+      const thaiLang = /[ก-๙]/;
 
-    bg.value = data
-    bg.value.name = name._
+      bgData.value = data;
+      console.log(name);
 
-    if (name.length > 1) {
-      name.forEach(n => {
-        if (thaiLang.test(n._)) {
-          bg.value.name = n._
-        } else if (n.primary == 'true') {
-          bg.value.name = n._
-        } else {
-          bg.name = n._
+      if (name.length > 0) {
+        bgData.value.name = name.filter((n) => n.type == "primary")[0].value;
+
+        if (name.filter((n) => thaiLang.test(n.value)) == true) {
+          bgData.value.name = name.filter((n) =>
+            thaiLang.test(n.value)
+          )[0].value;
         }
-      });
-    }
-  })
-}
+      } else {
+        bgData.value.name = name.value;
+      }
+
+      ready.value = true;
+    });
+};
 
 onMounted(() => {
-  getBG()
-}) 
+  getBG(props.objectid);
+});
 </script>
 
 <style scoped>
@@ -148,7 +163,7 @@ onMounted(() => {
 .year {
   font-weight: bold;
   color: lightgray;
-  margin-top: -.5em;
+  margin-top: -0.5em;
 }
 
 .image {
@@ -163,9 +178,9 @@ img {
 .youtube {
   background-color: #fe0032;
   color: #fff;
-  padding: .5em;
+  padding: 0.5em;
   width: fit-content;
-  border-radius: .5em;
+  border-radius: 0.5em;
   cursor: pointer;
   text-decoration: none;
   align-self: center;
@@ -180,7 +195,7 @@ img {
 }
 
 i {
-  margin-right: .5em;
+  margin-right: 0.5em;
   width: 1em;
 }
 
@@ -190,7 +205,7 @@ i {
 
 .categories {
   display: flex;
-  gap: .5em;
+  gap: 0.5em;
   flex-wrap: wrap;
   align-items: center;
   margin: 1.5em 0 1em;
@@ -203,8 +218,8 @@ i {
 .category {
   background-color: lightgrey;
   color: grey;
-  border-radius: .5em;
-  padding: 0 .5em;
+  border-radius: 0.5em;
+  padding: 0 0.5em;
   font-style: italic;
 }
 
@@ -213,16 +228,16 @@ i {
   margin: auto;
   background-color: #ee636d;
   color: #fff;
-  padding: .5em 1em;
-  border-radius: .5em;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
   cursor: pointer;
 }
 
 .reservation {
   background-color: #6babfa;
   margin: 1em auto;
-  padding: .5em 1em;
-  border-radius: .5em;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
   color: #fff;
   width: fit-content;
 }
