@@ -99,12 +99,10 @@ onMounted(() => {
   if (localStorage.getItem("BoardgameDB")) {
     DB.value = JSON.parse(localStorage.getItem("BoardgameDB"));
   }
-  axios
-    .get("https://n8n.3xbun.com/webhook-test/bgg-api/collection")
-    .then((res) => {
-      DB.value = res.data;
-      localStorage.setItem("BoardgameDB", JSON.stringify(res.data));
-    });
+  axios.get("https://n8n.3xbun.com/webhook/bgg-api/collection").then((res) => {
+    DB.value = res.data;
+    localStorage.setItem("BoardgameDB", JSON.stringify(res.data));
+  });
 });
 </script>
 
