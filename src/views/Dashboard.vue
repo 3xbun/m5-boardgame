@@ -22,25 +22,25 @@
 
     <ul class="cards">
       <li
-        v-for="item in DB"
+        v-for="item in filterDB"
         class="card"
         @click="
           showModal = true;
           bgID = item.ID;
         "
       >
-        <!-- <img :src="item.image" alt="" /> -->
+        <img :src="item.Image" alt="" />
         <div class="information">
           <p>
             <strong>{{ item.Name }}</strong>
           </p>
-          <!-- <p>
-            <i class="fa-duotone fa-solid fa-users"></i> : {{ item.player }} คน
+          <p>
+            <i class="fa-duotone fa-solid fa-users"></i> : {{ item.Player }} คน
           </p>
           <p>
             <i class="fa-duotone fa-regular fa-timer"></i> :
-            {{ item.playtime }} นาที
-          </p> -->
+            {{ item.Playtime }} นาที
+          </p>
         </div>
       </li>
     </ul>
@@ -54,8 +54,6 @@ import axios from "axios";
 import BoardGame from "../components/BoardGame.vue";
 
 const bgID = ref("");
-const reservedName = ref("");
-const reservedDate = ref("");
 const showModal = ref(false);
 provide("showModal", showModal);
 
@@ -64,9 +62,9 @@ const sortBy = ref("alphabetically");
 const filterDB = computed(() => {
   if (sortBy.value === "alphabetically") {
     return DB.value.sort((a, b) => {
-      if (a.name < b.name) {
+      if (a.Name < b.Name) {
         return -1;
-      } else if (a.name > b.name) {
+      } else if (a.Name > b.Name) {
         return 1;
       }
 
@@ -74,9 +72,9 @@ const filterDB = computed(() => {
     });
   } else if (sortBy.value === "playtime") {
     return DB.value.sort((a, b) => {
-      if (a.playtime < b.playtime) {
+      if (a.Playtime < b.Playtime) {
         return -1;
-      } else if (a.playtime > b.playtime) {
+      } else if (a.Playtime > b.Playtime) {
         return 1;
       }
 
@@ -84,9 +82,9 @@ const filterDB = computed(() => {
     });
   } else if (sortBy.value === "players") {
     return DB.value.sort((a, b) => {
-      if (a.player.split("-")[0] < b.player.split("-")[0]) {
+      if (a.Player.split("-")[0] < b.Player.split("-")[0]) {
         return -1;
-      } else if (a.player.split("-")[0] > b.player.split("-")[0]) {
+      } else if (a.Player.split("-")[0] > b.Player.split("-")[0]) {
         return 1;
       }
 
