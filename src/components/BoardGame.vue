@@ -72,6 +72,8 @@
       <br />
       <p v-html="bgData.description"></p>
     </div>
+    <div class="played-btn">เล่น</div>
+    <div class="played">เล่นไปแล้ว 0 ครั้ง</div>
     <!-- <div class="delete" @click="delete (bgData.objectid)">นำออกจากคอลเลคชั่น</div> -->
   </div>
 </template>
@@ -98,7 +100,6 @@ const getBG = (id) => {
       const thaiLang = /[ก-๙]/;
 
       bgData.value = data;
-      console.log(name);
 
       if (name.length > 0) {
         bgData.value.name = name.filter((n) => n.type == "primary")[0].value;
@@ -240,5 +241,21 @@ i {
   border-radius: 0.5em;
   color: #fff;
   width: fit-content;
+}
+
+.played-btn {
+  background: #6babfa;
+  width: fit-content;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  margin: 1em auto;
+}
+
+.played {
+  color: lightgray;
+  font-style: italic;
 }
 </style>

@@ -18,28 +18,40 @@
       <p class="btn" @click="sortBy = 'alphabetically'">ตัวอักษร</p>
       <p class="btn" @click="sortBy = 'playtime'">เวลาเล่น</p>
       <p class="btn" @click="sortBy = 'players'">จำนวนผู้เล่น</p>
+      <p class="btn" @click="sortBy = 'played'">จำนวนครั้งที่เล่น</p>
     </div>
 
     <ul class="cards">
-      <li
-        v-for="item in filterDB"
-        class="card"
-        @click="
-          showModal = true;
-          bgID = item.BGG_ID;
-        "
-      >
-        <img :src="item.Image" alt="" />
+      <li v-for="item in filterDB" class="card">
+        <img
+          :src="item.Image"
+          alt=""
+          @click="
+            showModal = true;
+            bgID = item.BGG_ID;
+          "
+        />
         <div class="information">
-          <p>
+          <p
+            @click="
+              showModal = true;
+              bgID = item.BGG_ID;
+            "
+          >
             <strong>{{ item.Name }}</strong>
           </p>
+
+          <p class="btn" @click="play(item.Id)">เล่น</p>
           <p>
             <i class="fa-duotone fa-solid fa-users"></i> : {{ item.Player }} คน
           </p>
           <p>
             <i class="fa-duotone fa-regular fa-timer"></i> :
             {{ item.Playtime }} นาที
+          </p>
+          <p>
+            <i class="fa-duotone fa-solid fa-gamepad"></i> :
+            {{ item.Played }} ครั้ง
           </p>
         </div>
       </li>
@@ -70,6 +82,16 @@ const filterDB = computed(() => {
 
       return 0;
     });
+  } else if (sortBy.value === "played") {
+    return DB.value.sort((a, b) => {
+      if (a.Played < b.Played) {
+        return -1;
+      } else if (a.Played > b.Played) {
+        return 1;
+      }
+
+      return 0;
+    });
   } else if (sortBy.value === "playtime") {
     return DB.value.sort((a, b) => {
       if (a.Playtime < b.Playtime) {
@@ -93,10 +115,20 @@ const filterDB = computed(() => {
   }
 });
 
+const play = (id) => {
+  axios
+    .patch(
+      "https://n8n.3xbun.com/webhook/00325598-78e4-4094-ad41-a5faf5778670/bgg-api/play/" +
+        id
+    )
+    .then((res) => location.reload());
+};
+
 onMounted(() => {
   if (localStorage.getItem("BoardgameDB")) {
     DB.value = JSON.parse(localStorage.getItem("BoardgameDB"));
   }
+
   axios.get("https://n8n.3xbun.com/webhook/bgg-api/collection").then((res) => {
     DB.value = res.data;
     localStorage.setItem("BoardgameDB", JSON.stringify(res.data));
@@ -125,6 +157,7 @@ header p {
 }
 
 img {
+  cursor: pointer;
   height: 6em;
   width: auto;
   border-radius: 0.5em;
@@ -136,7 +169,6 @@ img {
 }
 
 .cards {
-  cursor: pointer;
   display: flex;
   gap: 1em;
   justify-content: center;
@@ -188,5 +220,23 @@ li {
   background-color: #6babfa;
   color: #fff;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.information {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.btn {
+  background: #6babfa;
+  width: fit-content;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  margin: 0.5em;
 }
 </style>
