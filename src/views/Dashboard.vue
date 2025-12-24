@@ -2,23 +2,21 @@
   <div>
     <header>
       <h1><i class="fa-duotone fa-solid fa-game-board"></i> คอลเลคชั่น</h1>
-      <router-link to="/add">
-        <p>เพิ่มเกม</p>
-      </router-link>
     </header>
 
     <BoardGame :objectid="bgID" v-if="showModal" />
 
     <div class="stats">
+      <router-link to="/add">เพิ่มเกม</router-link>
       <p>เกมที่มี: {{ DB.length }}</p>
     </div>
 
+    <p>เรียงตาม</p>
     <div class="sort">
-      <p>เรียงตาม:</p>
       <p class="btn" @click="sortBy = 'alphabetically'">ตัวอักษร</p>
-      <p class="btn" @click="sortBy = 'playtime'">เวลาเล่น</p>
-      <p class="btn" @click="sortBy = 'players'">จำนวนผู้เล่น</p>
-      <p class="btn" @click="sortBy = 'played'">จำนวนครั้งที่เล่น</p>
+      <p class="btn" @click="sortBy = 'playtime'">เวลาที่ใช้</p>
+      <p class="btn" @click="sortBy = 'players'">ผู้เล่น</p>
+      <p class="btn" @click="sortBy = 'played'">เล่นไปแล้ว</p>
     </div>
 
     <ul class="cards">
@@ -143,13 +141,6 @@ header {
   justify-content: space-between;
 }
 
-header p {
-  color: lightgray;
-  text-decoration: underline;
-  cursor: pointer;
-  margin-bottom: 0.5em;
-}
-
 .imgs {
   display: flex;
   flex-direction: column;
@@ -163,9 +154,19 @@ img {
   border-radius: 0.5em;
 }
 
+.stats {
+  display: flex;
+  justify-content: space-between;
+}
+
 .stats p {
   text-align: right;
-  padding: 0.5em 0;
+}
+
+.stats a {
+  color: lightgray;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .cards {
@@ -196,9 +197,12 @@ li {
 }
 
 .sort {
+  width: 100%;
   display: flex;
-  gap: 1em;
+  /* gap: 0.5em; */
   padding: 0.5em 1em 1em;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
 }
 
@@ -208,6 +212,7 @@ li {
   padding: 0.5em;
   border-radius: 0.5em;
   color: white;
+  width: 6em;
 }
 
 .reserved {
