@@ -60,9 +60,8 @@
     <div class="categories">
       <i class="fa-duotone fa-solid fa-tags"></i>
 
-      <span class="category" v-for="link in bgData.link">
-        <span v-if="link.type == 'boardgamecategory'">{{ link.value }}</span>
-        <span v-if="link.type == 'boardgamemechanic'">{{ link.value }}</span>
+      <span class="category" v-for="link in categories">
+        <span>{{ link.value }}</span>
       </span>
     </div>
 
@@ -72,20 +71,27 @@
       <br />
       <p v-html="bgData.description"></p>
     </div>
-    <div class="played-btn">เล่น</div>
-    <div class="played">เล่นไปแล้ว 0 ครั้ง</div>
     <!-- <div class="delete" @click="delete (bgData.objectid)">นำออกจากคอลเลคชั่น</div> -->
   </div>
 </template>
 
 <script setup>
 import axios from "axios";
-import { inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 
 const bgData = ref({});
 const showModal = inject("showModal");
 const props = defineProps(["objectid"]);
 const ready = ref(false);
+
+const categories = computed(() => {
+  const links = bgData.value.link;
+
+  return links.filter(
+    (link) =>
+      link.type == "boardgamecategory" || link.type == "boardgamemechanic"
+  );
+});
 
 const close = () => {
   showModal.value = false;
