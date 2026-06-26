@@ -13,10 +13,58 @@
 
     <p>เรียงตาม</p>
     <div class="sort">
-      <p class="btn" @click="sortBy = 'alphabetically'">ตัวอักษร</p>
-      <p class="btn" @click="sortBy = 'playtime'">เวลาที่ใช้</p>
-      <p class="btn" @click="sortBy = 'players'">ผู้เล่น</p>
-      <p class="btn" @click="sortBy = 'played'">เล่นไปแล้ว</p>
+      <p
+        :class="['btn', sortBy === 'alphabetically' ? 'active' : '']"
+        @click="handleSort('alphabetically')"
+      >
+        ตัวอักษร
+        <span v-if="sortBy === 'alphabetically'">
+          <i
+            v-if="sortOrder === 'asc'"
+            class="fa-duotone fa-solid fa-arrow-down-a-z"
+          ></i>
+          <i v-else class="fa-duotone fa-solid fa-arrow-up-a-z"></i>
+        </span>
+      </p>
+      <p
+        :class="['btn', sortBy === 'playtime' ? 'active' : '']"
+        @click="handleSort('playtime')"
+      >
+        เวลาที่ใช้
+        <span v-if="sortBy === 'playtime'">
+          <i
+            v-if="sortOrder === 'asc'"
+            class="fa-duotone fa-solid fa-arrow-down-1-9"
+          ></i>
+          <i v-else class="fa-duotone fa-solid fa-arrow-up-1-9"></i>
+        </span>
+      </p>
+      <p
+        :class="['btn', sortBy === 'players' ? 'active' : '']"
+        @click="handleSort('players')"
+      >
+        ผู้เล่น
+        <span v-if="sortBy === 'players'">
+          <i
+            v-if="sortOrder === 'asc'"
+            class="fa-duotone fa-solid fa-arrow-down-1-9"
+          ></i>
+          <i v-else class="fa-duotone fa-solid fa-arrow-up-1-9"></i>
+        </span>
+      </p>
+      <p
+        :class="['btn', sortBy === 'played' ? 'active' : '']"
+        @click="handleSort('played')"
+      >
+        เล่นไปแล้ว
+        <span v-if="sortBy === 'played'">
+          <i
+            v-if="sortOrder === 'asc'"
+            class="fa-duotone fa-solid fa-arrow-down-1-9"
+          ></i>
+          <i v-else class="fa-duotone fa-solid fa-arrow-up-1-9"></i>
+        </span>
+      </p>
     </div>
 
     <ul class="cards">
@@ -39,7 +87,21 @@
             <strong>{{ item.Name }}</strong>
           </p>
 
-          <p class="btn" @click="play(item.Id)">เล่น</p>
+          <div class="btns">
+            <p
+              class="btn view"
+              @click="
+                showModal = true;
+                bgID = item.BGG_ID;
+              "
+            >
+              <i class="fa-solid fa-eye"></i>
+            </p>
+            <p class="btn play" @click="play(item.Id)">
+              <i class="fa-solid fa-play"></i>
+            </p>
+          </div>
+
           <p>
             <i class="fa-duotone fa-solid fa-users"></i> : {{ item.Player }} คน
           </p>
@@ -69,55 +131,59 @@ provide("showModal", showModal);
 
 const DB = ref([]);
 const sortBy = ref("alphabetically");
-const filterDB = computed(() => {
-  if (sortBy.value === "alphabetically") {
-    return DB.value.sort((a, b) => {
-      if (a.Name < b.Name) {
-        return -1;
-      } else if (a.Name > b.Name) {
-        return 1;
-      }
+const sortOrder = ref("asc");
 
-      return 0;
-    });
-  } else if (sortBy.value === "played") {
-    return DB.value.sort((a, b) => {
-      if (a.Played < b.Played) {
-        return -1;
-      } else if (a.Played > b.Played) {
-        return 1;
-      }
-
-      return 0;
-    });
-  } else if (sortBy.value === "playtime") {
-    return DB.value.sort((a, b) => {
-      if (a.Playtime < b.Playtime) {
-        return -1;
-      } else if (a.Playtime > b.Playtime) {
-        return 1;
-      }
-
-      return 0;
-    });
-  } else if (sortBy.value === "players") {
-    return DB.value.sort((a, b) => {
-      if (a.Player.split("-")[0] < b.Player.split("-")[0]) {
-        return -1;
-      } else if (a.Player.split("-")[0] > b.Player.split("-")[0]) {
-        return 1;
-      }
-
-      return 0;
-    });
+const handleSort = (criteria) => {
+  if (sortBy.value === criteria) {
+    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+  } else {
+    sortBy.value = criteria;
+    if (criteria === "played" || criteria === "playtime") {
+      sortOrder.value = "desc";
+    } else {
+      sortOrder.value = "asc";
+    }
   }
+};
+
+const filterDB = computed(() => {
+  const multiplier = sortOrder.value === "asc" ? 1 : -1;
+
+  return [...DB.value].sort((a, b) => {
+    if (sortBy.value === "alphabetically") {
+      const nameA = a.Name || "";
+      const nameB = b.Name || "";
+      if (nameA < nameB) return -1 * multiplier;
+      if (nameA > nameB) return 1 * multiplier;
+      return 0;
+    } else if (sortBy.value === "played") {
+      const playedA = Number(a.Played) || 0;
+      const playedB = Number(b.Played) || 0;
+      if (playedA < playedB) return -1 * multiplier;
+      if (playedA > playedB) return 1 * multiplier;
+      return 0;
+    } else if (sortBy.value === "playtime") {
+      const playtimeA = Number(a.Playtime) || 0;
+      const playtimeB = Number(b.Playtime) || 0;
+      if (playtimeA < playtimeB) return -1 * multiplier;
+      if (playtimeA > playtimeB) return 1 * multiplier;
+      return 0;
+    } else if (sortBy.value === "players") {
+      const playerA = Number(a.Player ? a.Player.split("-")[0] : 0) || 0;
+      const playerB = Number(b.Player ? b.Player.split("-")[0] : 0) || 0;
+      if (playerA < playerB) return -1 * multiplier;
+      if (playerA > playerB) return 1 * multiplier;
+      return 0;
+    }
+    return 0;
+  });
 });
 
 const play = (id) => {
   axios
     .patch(
       "https://n8n.3xbun.com/webhook/00325598-78e4-4094-ad41-a5faf5778670/bgg-api/play/" +
-        id
+        id,
     )
     .then((res) => location.reload());
 };
@@ -183,7 +249,9 @@ img {
   flex-direction: column;
   justify-content: flex-start;
   padding: 1em 1em;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.16),
+    0 3px 6px rgba(0, 0, 0, 0.23);
   border-radius: 1em;
 }
 
@@ -199,7 +267,7 @@ li {
 .sort {
   width: 100%;
   display: flex;
-  /* gap: 0.5em; */
+  gap: 0.5em;
   padding: 0.5em 1em 1em;
   flex-wrap: wrap;
   justify-content: center;
@@ -209,10 +277,20 @@ li {
 .sort .btn {
   cursor: pointer;
   background-color: #3f3a60;
-  padding: 0.5em;
+  padding: 0.5em 1em;
   border-radius: 0.5em;
   color: white;
-  width: 6em;
+  min-width: 7.5em;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+}
+
+.sort .btn.active {
+  background-color: #6babfa;
+  font-weight: bold;
 }
 
 .reserved {
@@ -234,14 +312,27 @@ li {
   height: 100%;
 }
 
+.btns {
+  display: flex;
+  align-content: center;
+  margin: 0.5em;
+  border-radius: 0.5em;
+  overflow: hidden;
+}
+
 .btn {
-  background: #6babfa;
   width: fit-content;
   padding: 0.5em 1em;
-  border-radius: 0.5em;
   font-weight: bold;
-  color: #fff;
   cursor: pointer;
-  margin: 0.5em;
+}
+
+.view {
+  background: #e6e6e6;
+}
+
+.play {
+  background: #6babfa;
+  color: #fff;
 }
 </style>

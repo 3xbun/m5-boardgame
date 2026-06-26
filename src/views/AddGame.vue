@@ -97,6 +97,7 @@ const search = () => {
       keyword: searchText.value,
     })
     .then((res) => {
+      console.log(res.data[0].items.item);
       result.value = res.data[0].items.item;
     });
 };
@@ -116,7 +117,7 @@ const getBG = (id) => {
 
         if (name.filter((n) => thaiLang.test(n.value))) {
           bgData.value.name = name.filter((n) =>
-            thaiLang.test(n.value)
+            thaiLang.test(n.value),
           )[0].value;
         }
       } else {
@@ -209,7 +210,9 @@ ul {
   max-height: 20vh;
   overflow: scroll;
   overflow-x: hidden;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.16),
+    0 3px 6px rgba(0, 0, 0, 0.23);
   padding: 0.5em 0.5em 0em;
   border-radius: 0.5em;
 }
